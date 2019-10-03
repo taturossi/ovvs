@@ -1,0 +1,28 @@
+.subject-info-box-1,
+.subject-info-box-2 {
+    float: left;
+    width: 100%;
+    
+    select {
+        height: 300px;
+        padding: 0;
+
+        option {
+            padding: 4px 10px 4px 10px;
+        }
+
+        option:hover {
+            background: #EEEEEE;
+        }
+    }
+}
+
+.subject-info-arrows {
+    float:center;
+    width: 50%;
+
+    input {
+        width: 100%;
+        --margin-bottom: 2px;
+    }
+}
