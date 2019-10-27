@@ -10,7 +10,7 @@
   <meta name="description" content="">
   <meta name="author" content="">
 
-  <title>OWS - Nodos</title>
+  <title>OWS - Equipos</title>
 
   <!-- Custom fonts for this template-->
   <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
@@ -33,121 +33,152 @@
 	{
 		var codigo = document.getElementById("txtCodigo").value;
 		var descrip = document.getElementById("txtDescrip").value;
-		var Tipo = document.getElementById("selTipo").value;
-		var chk = document.getElementById("chkHabilitado").checked;
+		var Tipo = document.getElementById("selTipoEquipo").value;
+		var Marca = document.getElementById("selMarca").value;
+		var Modelo = document.getElementById("selModelo").value;
+		var Torre = document.getElementById("selTorre").value;
 		
 		
 		document.getElementById("tableContainer").innerHTML = "";
-		CargarGrilla(codigo,descrip,Tipo, chk);
+		CargarGrilla(codigo,descrip,Tipo, Marca, Modelo, Torre);
 	}
-	function Desactivar (id, codigo)
-	{
-		if (confirm("¿Esta seguro que desea desactivar el tipo de movimiento "+ codigo +" ?")) {
-			
-			console.log("entre: "+id);
-			urltemp = 'classes/TipoMovimiento/actualizarTipoMovimiento.php?id='+id+'&fb=1';
-			
-			$.ajax({
-				type: "GET",
-				url: urltemp,
-				success: function(data){
-					if (data == 1)
-					{
-						
-						document.getElementById("tableContainer").innerHTML = "";
-						CargarGrilla("","","", false);
-						document.getElementById("divMensaje").innerHTML = "<p>El tipo de movimiento "+codigo+" fue desactivado correctamente<p>";
-						document.getElementById("divResult").style.display = "block";
-					}
-				}
-			});
-		}
-	}
+	
   </script>
 	<script>  
 		$(document).ready(function() {
-			CargarProvincias();
-			CargarGrilla("","",0, 0);
+			CargarTipoEquipo();
+			CargarMarcas();
+			CargarTorre();
+			CargarGrilla("","",0,0,0,0);
 		});
 		
-		function CargarProvincias()
+		function CargarTipoEquipo()
 		{
 			$.ajax({
 						type: "GET",
-						url: "classes/Generales/getProvincias.php",
+						url: "classes/Generales/getTipoEquipo.php",
 						async: true,
 						success: function(data){
 							
-							var selProv = document.getElementById("selProvincia");
+							var selTipo = document.getElementById("selTipoEquipo");
 
 						
 							
 							var data1 = JSON.parse(data);
 							data1.forEach(row => {
 								var opt = document.createElement("option");
-								opt.value= row.IdProvincia;
+								opt.value= row.IdTipoEquipo;
 								opt.innerHTML = row.Descripcion; 
 
-								selProv.appendChild(opt);
+								selTipo.appendChild(opt);
 							});
 						}
 			});
 		}
-		function CargarCiudades()
+		function CargarTorre()
 		{
-			var prov = document.getElementById("selProvincia").value;
-			if(prov != 0)
+			$.ajax({
+				type: "GET",
+				url: "classes/Nodo/getNodos.php",
+				async: true,
+				success: function(data){
+					
+					var selTorre = document.getElementById("selTorre");
+					var data1 = JSON.parse(data);
+					data1.forEach(row => {
+						var opt = document.createElement("option");
+						opt.value= row.idNodo;
+						opt.innerHTML = row.Nodo; 
+
+						selTorre.appendChild(opt);
+					});
+				}
+			});
+		}
+		function CargarMarcas()
+		{
+			$.ajax({
+				type: "GET",
+				url: "classes/Generales/getMarcas.php",
+				async: true,
+				success: function(data){
+					
+					var selMar = document.getElementById("selMarca");
+					
+					var opt; 
+					var data1 = JSON.parse(data);
+					data1.forEach(row => {
+						opt = document.createElement("option");
+						opt.value= row.idMarcaEquipo;
+						opt.innerHTML = row.Descripcion; 
+
+						selMar.appendChild(opt);
+					});
+				}
+			});
+			
+		}
+		function CargarModelos()
+		{
+			var marca = document.getElementById("selMarca").value;
+			if(marca != 0)
 			{
 				$.ajax({
 					type: "GET",
-					url: "classes/Generales/getCiudades.php?p="+prov,
+					url: "classes/Generales/getModelos.php?m="+marca,
 					async: true,
 					success: function(data){
 						
-						var selCiu = document.getElementById("selCiudad");
+						var sel = document.getElementById("selModelo");
 						
 						var opt = document.createElement("option");
 						opt.value= 0;
 						opt.innerHTML = "Seleccione"; 
-
-						selCiu.appendChild(opt);
-						console.log("dataaaaaaaaaaaaaaaaaaaaaaaaaa");
-						console.log(data);
+						sel.appendChild(opt);
+						
 						var data1 = JSON.parse(data);
 						data1.forEach(row => {
 							opt = document.createElement("option");
-							opt.value= row.IdCiudad;
-							opt.innerHTML = row.Nombre; 
+							opt.value= row.idmodeloequipo;
+							opt.innerHTML = row.descripcion; 
 
-							selCiu.appendChild(opt);
+							sel.appendChild(opt);
 						});
 					}
 				});
 			}
 		}
 		
-		function CargarGrilla(c,d,p,ci)
+		function CargarGrilla(c,d,t, M, Mo, to)
 		{
 			document.getElementById("divResult").style.display = "none";
-			var urltemp = 'classes/Nodo/getNodos.php';
-			if(c != "" || d != "" || p !="" || ci == true)
+			var urltemp = 'classes/Equipo/getEquipos.php';
+			if(c != "" || d != "" || t !=0 || M != 0 || Mo != 0 || to != 0)
 				urltemp = urltemp + "?"
 			
 			if(c != "")
 				urltemp = urltemp + "c="+c+"&";
 			if(d != "")
 				urltemp = urltemp + "d="+d+"&";
-			if(p != 0)
-				urltemp = urltemp + "p="+p+"&";
-			if(ci != 0)
-				urltemp = urltemp + "ci="+ci;
+			if(t != 0)
+				urltemp = urltemp + "t="+t+"&";
+			if(M != 0)
+				urltemp = urltemp + "m="+M+"&";
+			if(Mo != 0)
+				urltemp = urltemp + "mo="+Mo+"&";
+			if(to != 0)
+				urltemp = urltemp + "to="+to+"&";
 			
+			if(c != "" || d != "" || t !=0 || M != 0 || Mo != 0 || to != 0)
+				urltemp = urltemp + "a=1";
+
+			console.log(urltemp);
 			$.ajax({
 						type: "GET",
 						url: urltemp,
 						success: function(data){
-												
-												console.log( data);
+						
+						console.log(data);	
 						tabContainer=document.getElementById("tableContainer");
 
 						drawTable=document.createElement("table");
@@ -158,75 +189,63 @@
 						drawHead=document.createElement("thead");
 						drawtr=document.createElement("tr");
 						
-						drawthChk=document.createElement("th");
 						drawthCodigo=document.createElement("th");
 						drawthDescrip=document.createElement("th");
-						drawthProvincia=document.createElement("th");
-						drawthCiudad=document.createElement("th");
-						drawthClientes=document.createElement("th");
-						drawthMaps=document.createElement("th");
+						drawthTipoEquipo=document.createElement("th");
+						drawthMarca=document.createElement("th");
+						drawthModelo=document.createElement("th");
+						drawthTorre=document.createElement("th");
 						drawthFechaAlta=document.createElement("th");
-						drawthFechaBaja=document.createElement("th");
 						drawthActions=document.createElement("th"); 
 						
-						drawthChk.appendChild(document.createTextNode('Sel'));
 						drawthCodigo.appendChild(document.createTextNode('Codigo'));
 						drawthDescrip.appendChild(document.createTextNode('Descripción'));
-						drawthProvincia.appendChild(document.createTextNode('Provincia'));
-						drawthCiudad.appendChild(document.createTextNode('Ciudad'));
-						drawthClientes.appendChild(document.createTextNode('Cant. Clientes'));
-						drawthMaps.appendChild(document.createTextNode('Maps'));
+						drawthTipoEquipo.appendChild(document.createTextNode('Tipo Equipo'));
+						drawthMarca.appendChild(document.createTextNode('Marca'));
+						drawthModelo.appendChild(document.createTextNode('Modelo'));
+						drawthTorre.appendChild(document.createTextNode('Torre'));
 						drawthFechaAlta.appendChild(document.createTextNode('Fecha Alta'));
-						drawthFechaBaja.appendChild(document.createTextNode('Fecha Baja'));
 						drawthActions.appendChild(document.createTextNode('Acciones'));
 						
 																
-						drawtr.appendChild(drawthChk);																		
 						drawtr.appendChild(drawthCodigo);		
 						drawtr.appendChild(drawthDescrip);	
-						drawtr.appendChild(drawthProvincia);
-						drawtr.appendChild(drawthCiudad);
-						drawtr.appendChild(drawthClientes);
-						drawtr.appendChild(drawthMaps);
+						drawtr.appendChild(drawthTipoEquipo);
+						drawtr.appendChild(drawthMarca);
+						drawtr.appendChild(drawthModelo);
+						drawtr.appendChild(drawthTorre);
 						drawtr.appendChild(drawthFechaAlta);		
-						drawtr.appendChild(drawthFechaBaja);
-						drawHead.appendChild(drawtr);
 						drawtr.appendChild(drawthActions);						
+						drawHead.appendChild(drawtr);
 																																  
 																																  
 						drawFoot=document.createElement("tfoot");
 						drawtrFoot=document.createElement("tr");
-						drawthChkFoot=document.createElement("th");
 						drawthCodigoFoot=document.createElement("th");
 						drawthDescripFoot=document.createElement("th");
-						drawthProvinciaFoot=document.createElement("th");
-						drawthCiudadFoot=document.createElement("th");
-						drawthClientesFoot=document.createElement("th");
-						drawthMapFootFoot=document.createElement("th");
+						drawthTipoEquipoFoot=document.createElement("th");
+						drawthMarcaFoot=document.createElement("th");
+						drawthModeloFoot=document.createElement("th");
+						drawthTorreFoot=document.createElement("th");
 						drawthFechaAltaFoot=document.createElement("th");
-						drawthFechaBajaFoot=document.createElement("th");
 						drawthActionsFoot=document.createElement("th");
 						
-						drawthChkFoot.appendChild(document.createTextNode('Sel'));
 						drawthCodigoFoot.appendChild(document.createTextNode('Codigo'));
 						drawthDescripFoot.appendChild(document.createTextNode('Descripción'));
-						drawthProvinciaFoot.appendChild(document.createTextNode('Provincia'));
-						drawthCiudadFoot.appendChild(document.createTextNode('Ciudad'));
-						drawthClientesFoot.appendChild(document.createTextNode('Cant. Clientes'));
-						drawthMapFootFoot.appendChild(document.createTextNode('Maps'));
+						drawthTipoEquipoFoot.appendChild(document.createTextNode('Tipo Equipo'));
+						drawthMarcaFoot.appendChild(document.createTextNode('Marca'));
+						drawthModeloFoot.appendChild(document.createTextNode('Modelo'));
+						drawthTorreFoot.appendChild(document.createTextNode('Torre'));
 						drawthFechaAltaFoot.appendChild(document.createTextNode('Fecha Alta'));
-						drawthFechaBajaFoot.appendChild(document.createTextNode('Fecha Baja'));
-						drawthActionsFoot.appendChild(document.createTextNode('Actions'));		
+						drawthActionsFoot.appendChild(document.createTextNode('Acciones'));		
 						
-						drawtrFoot.appendChild(drawthChkFoot);		
 						drawtrFoot.appendChild(drawthCodigoFoot);		
 						drawtrFoot.appendChild(drawthDescripFoot);	
-						drawtrFoot.appendChild(drawthProvinciaFoot);
-						drawtrFoot.appendChild(drawthCiudadFoot);
-						drawtrFoot.appendChild(drawthClientesFoot);
-						drawtrFoot.appendChild(drawthMapFootFoot);
+						drawtrFoot.appendChild(drawthTipoEquipoFoot);
+						drawtrFoot.appendChild(drawthMarcaFoot);
+						drawtrFoot.appendChild(drawthModeloFoot);
+						drawtrFoot.appendChild(drawthTorreFoot);
 						drawtrFoot.appendChild(drawthFechaAltaFoot);		
-						drawtrFoot.appendChild(drawthFechaBajaFoot);	
 						drawtrFoot.appendChild(drawthActionsFoot);
 						drawFoot.appendChild(drawtrFoot);
 																																  
@@ -235,54 +254,35 @@
 							
 							var data1 = JSON.parse(data);
 							data1.forEach(row => {
-							//$('#tbody').append('<tr><td>' + row.name + '</td><td>' + row.campaignId + '</td></tr>');
 							rowTable=document.createElement("tr");
 
-							colChk = document.createElement("td");
 							colCodigo = document.createElement("td");
 							colDescrip = document.createElement("td");
-							colProvincia = document.createElement("td");
-							colCiudad = document.createElement("td");
-							colClientes = document.createElement("td");
-							colMaps = document.createElement("td");
+							colTipoEquipo = document.createElement("td");
+							colMarca = document.createElement("td");
+							colModelo = document.createElement("td");
+							colTorre = document.createElement("td");
 							colFechaAlta = document.createElement("td");
-							colFechaBaja = document.createElement("td");
 							colActions = document.createElement("td");
 							
-							var chk = document.createElement("input");
-							chk.setAttribute('type', 'checkbox' );
-							chk.setAttribute('id','chkSel');
-							chk.setAttribute('name','chkSel');
-							chk.setAttribute('value',row.idNodo);
+							colCodigo.appendChild(document.createTextNode(row.codigo));
+							colDescrip.appendChild(document.createTextNode(row.Descripcion));
+							colTipoEquipo.appendChild(document.createTextNode(row.TipoEquipo));
+							colMarca.appendChild(document.createTextNode(row.marca));
+							colModelo.appendChild(document.createTextNode(row.Modelo));
+							colTorre.appendChild(document.createTextNode(row.Torre));
 							
-							colChk.appendChild(chk);
-							colCodigo.appendChild(document.createTextNode(row.Codigo));
-							colDescrip.appendChild(document.createTextNode(row.Nodo));
-							colProvincia.appendChild(document.createTextNode(row.Provincia));
-							colCiudad.appendChild(document.createTextNode(row.Ciudad));
-							colClientes.appendChild(document.createTextNode(row.Clientes));
-							
-							var maps = document.createElement("a");
-							maps.setAttribute('href', row.LinkMaps );
-							maps.setAttribute('target','_blank');
-							//maps.setAttribute('class', "btn-sm btn-secondary mr-1 ");
-							var btnmaps = document.createElement("img");
-							btnmaps.setAttribute('src', "img/gmaps.png");
-							maps.appendChild(btnmaps);
-							
-							colMaps.appendChild(maps);
 							colFechaAlta.appendChild(document.createTextNode(row.FechaAlta));
-							colFechaBaja.appendChild(document.createTextNode(row.FechaBaja));
 							
 							var link = document.createElement("a");
-							link.setAttribute('href', "TipoMovimientoEditar.php?m=R&id=" + row.IdTipoMovimiento );
+							link.setAttribute('href', "EquipoEditar.php?m=R&id=" + row.idEquipo );
 							link.setAttribute('class', "btn-sm btn-secondary mr-1");
 							var btnsettings = document.createElement("i");
 							btnsettings.setAttribute('class', "fas fa-cog text-white-50");
 							link.appendChild(btnsettings);
 							  
 							var editlink = document.createElement("a");
-							editlink.setAttribute('href', "TipoMovimientoEditar.php?m=E&id=" + row.IdTipoMovimiento );
+							editlink.setAttribute('href', "EquipoEditar.php?m=E&id=" + row.idEquipo );
 							editlink.setAttribute('class', "btn-sm btn-primary mr-1");
 							var btnedit = document.createElement("i");
 							btnedit.setAttribute('class', "fa fa-magic text-white-50");
@@ -291,7 +291,7 @@
 							var remove = document.createElement("a");
 							remove.setAttribute('href', "#");
 							remove.setAttribute('class', "btn-sm btn-danger ");
-							remove.setAttribute('onclick', "javascript:Desactivar("+ row.IdTipoMovimiento+",'"+ row.Codigo +"');");
+							remove.setAttribute('onclick', "javascript:Desactivar("+ row.idEquipo+",'"+ row.codigo +"');");
 							var btnremove = document.createElement("i");
 							btnremove.setAttribute('class', "fas fa-trash text-white-50");
 							remove.appendChild(btnremove);
@@ -300,15 +300,13 @@
 							colActions.appendChild(editlink);
 							colActions.appendChild(remove);
 
-							rowTable.appendChild(colChk);
 							rowTable.appendChild(colCodigo);
 							rowTable.appendChild(colDescrip);
-							rowTable.appendChild(colProvincia);
-							rowTable.appendChild(colCiudad);
-							rowTable.appendChild(colClientes);
-							rowTable.appendChild(colMaps);
+							rowTable.appendChild(colTipoEquipo);
+							rowTable.appendChild(colMarca);
+							rowTable.appendChild(colModelo);
+							rowTable.appendChild(colTorre);
 							rowTable.appendChild(colFechaAlta);
-							rowTable.appendChild(colFechaBaja);
 							rowTable.appendChild(colActions);	
 							
 							tabBody.appendChild(rowTable);
@@ -335,6 +333,29 @@
 				}
 			}
 			
+		}
+		function Desactivar (id, codigo)
+		{
+			if (confirm("¿Esta seguro que desea desactivar el equipo "+ codigo +" ?")) {
+				
+				console.log("entre: "+id);
+				urltemp = 'classes/Equipo/editarequipo.php?id='+id+'&fb=1';
+				
+				$.ajax({
+					type: "GET",
+					url: urltemp,
+					success: function(data){
+						console.log(data);
+						if (data == 1)
+						{
+							document.getElementById("tableContainer").innerHTML = "";
+							CargarGrilla("","",0,0,0,0);
+							document.getElementById("divMensaje").innerHTML = "<p>El equipo "+codigo+" fue desactivado correctamente<p>";
+							document.getElementById("divResult").style.display = "block";
+						}
+					}
+				});
+			}
 		}
 	</script>
 </head>
@@ -366,7 +387,7 @@
         <div class="container-fluid">
 
 			<!-- Page Heading -->
-			<h1 class="h3 mb-4 text-gray-800">Lista de Nodos</h1>
+			<h1 class="h3 mb-4 text-gray-800">Gestión de Equipos</h1>
 			<div class="col-lg-12 mb-4">
 
               <!-- Project Card Example -->
@@ -384,15 +405,30 @@
                             <input class="form-control" id="txtDescrip" name="txtDescrip" value="">
 						</div>
 						<div class="col-3">
-							<label for="Name">Provincia</label>
-                            <select class="form-control select2-hidden-accessible" data-val="true"  id="selProvincia" name="selProvincia" onchange="javascript:CargarCiudades();"  tabindex="-1" aria-hidden="true">
-								<option value="0">Seleccione</option>
+							<label for="Name">Tipo Equipo</label>
+                            <select class="form-control select2-hidden-accessible" data-val="true"  id="selTipoEquipo" name="selTipoEquipo"  tabindex="-1" aria-hidden="true">
+								<option value="0"></option>
+							</select>
+						</div>
+						
+					</div>
+					<div class="row mb-4">
+						<div class="col-3">
+							<label for="Username">Marca</label>
+                            <select class="form-control select2-hidden-accessible" data-val="true"  id="selMarca" name="selMarca"  onchange="javascript:CargarModelos();"  tabindex="-1" aria-hidden="true" >
+								<option value="0"></option>
 							</select>
 						</div>
 						<div class="col-3">
-							<label for="Username">Ciudad</label>
-                            <select class="form-control select2-hidden-accessible" data-val="true"  id="selCiudad" name="selCiudad"  tabindex="-1" aria-hidden="true">
-								
+							<label for="Username">Modelo</label>
+                            <select class="form-control select2-hidden-accessible" data-val="true"  id="selModelo" name="selModelo"  tabindex="-1" aria-hidden="true">
+								<option value="0"></option>
+							</select>
+						</div>
+						<div class="col-3">
+							<label for="Username">Torre</label>
+                            <select class="form-control select2-hidden-accessible" data-val="true"  id="selTorre" name="selTorre"  tabindex="-1" aria-hidden="true">
+								<option value="0"></option>
 							</select>
 						</div>
 					</div>
@@ -408,9 +444,7 @@
 		 <div class="card shadow mb-4">
              <div class="card-body" >
 				<div class="my-2">
-					<a href="NodoNuevo.php" class="btn-lg btn-primary">Crear Nuevo</a>
-					&nbsp;&nbsp;&nbsp;
-					<a href="EnviarComunicacionClientes.php" onclick="ValidarComm();" class="btn-lg btn-primary">Enviar Comunicación</a>
+					<a href="EquipoNuevo.php" class="btn-lg btn-primary">Crear Nuevo</a>
 				</div>
 				</br>
 				<div class="card-body border-left-success " style="display:none;" id="divResult">		

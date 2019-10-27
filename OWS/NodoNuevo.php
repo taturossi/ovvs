@@ -110,62 +110,86 @@
 	}
 	$(document).ready(function() {
 			CargarProvincias();
+			CargarRouters();
 		//	CargarGrilla("","",0, 0);
 		});
 		
-		function CargarProvincias()
-		{
-			$.ajax({
-						type: "GET",
-						url: "classes/Generales/getProvincias.php",
-						async: true,
-						success: function(data){
-							
-							var selProv = document.getElementById("selProvincia");
-
-						
-							
-							var data1 = JSON.parse(data);
-							data1.forEach(row => {
-								var opt = document.createElement("option");
-								opt.value= row.IdProvincia;
-								opt.innerHTML = row.Descripcion; 
-
-								selProv.appendChild(opt);
-							});
-						}
-			});
-		}
-		function CargarCiudades()
-		{
-			var prov = document.getElementById("selProvincia").value;
-			if(prov != 0)
-			{
-				$.ajax({
+	function CargarProvincias()
+	{
+		$.ajax({
 					type: "GET",
-					url: "classes/Generales/getCiudades.php?p="+prov,
+					url: "classes/Generales/getProvincias.php",
 					async: true,
 					success: function(data){
 						
-						var selCiu = document.getElementById("selCiudad");
-						
-						var opt = document.createElement("option");
-						opt.value= 0;
-						opt.innerHTML = "Seleccione"; 
+						var selProv = document.getElementById("selProvincia");
 
-						selCiu.appendChild(opt);
+					
+						
 						var data1 = JSON.parse(data);
 						data1.forEach(row => {
-							opt = document.createElement("option");
-							opt.value= row.IdCiudad;
-							opt.innerHTML = row.Nombre; 
+							var opt = document.createElement("option");
+							opt.value= row.IdProvincia;
+							opt.innerHTML = row.Descripcion; 
 
-							selCiu.appendChild(opt);
+							selProv.appendChild(opt);
 						});
 					}
-				});
-			}
+		});
+	}
+	function CargarCiudades()
+	{
+		var prov = document.getElementById("selProvincia").value;
+		if(prov != 0)
+		{
+			$.ajax({
+				type: "GET",
+				url: "classes/Generales/getCiudades.php?p="+prov,
+				async: true,
+				success: function(data){
+					
+					var selCiu = document.getElementById("selCiudad");
+					
+					var opt = document.createElement("option");
+					opt.value= 0;
+					opt.innerHTML = "Seleccione"; 
+
+					selCiu.appendChild(opt);
+					var data1 = JSON.parse(data);
+					data1.forEach(row => {
+						opt = document.createElement("option");
+						opt.value= row.IdCiudad;
+						opt.innerHTML = row.Descripcion; 
+
+						selCiu.appendChild(opt);
+					});
+				}
+			});
 		}
+	}
+	function CargarRouters()
+	{
+		$.ajax({
+					type: "GET",
+					url: "classes/Nodo/getRouters.php",
+					async: true,
+					success: function(data){
+						
+						var selProv = document.getElementById("selProvincia");
+
+					
+						
+						var data1 = JSON.parse(data);
+						data1.forEach(row => {
+							var opt = document.createElement("option");
+							opt.value= row.IdProvincia;
+							opt.innerHTML = row.Descripcion; 
+
+							selProv.appendChild(opt);
+						});
+					}
+		});
+	}
   </script>
 		
 </head>
@@ -279,7 +303,7 @@
 						<div class="col-5">
 							<label for="Currency">Routers Disponibles</label>
 							<div class="subject-info-box-1">
-							  <select multiple="multiple" id='lstBox1' class="form-control">
+							  <select multiple="multiple" id='lstBoxRD' class="form-control">
 								<option value="ajax">Ajax</option>
 								<option value="jquery">jQuery</option>
 								<option value="javascript">JavaScript</option>
@@ -302,7 +326,7 @@
 						<div class="col-5">
 							<label for="Currency">Routers Asignados</label>
 							<div class="subject-info-box-2">
-							  <select multiple="multiple" id='lstBox2' class="form-control">
+							  <select multiple="multiple" id='lstBoxRA' class="form-control">
 								<option value="asp">ASP.NET</option>
 								<option value="c#">C#</option>
 								<option value="vb">VB.NET</option>

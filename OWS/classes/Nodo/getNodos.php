@@ -21,9 +21,9 @@
 	
 	$conexion = cnn();
 	
-	$CadenaSQL = "SELECT n.idNodo, n.Codigo, n.LinkMaps, n.Descripcion Nodo, p.Descripcion Provincia, c.Nombre Ciudad, 
+	$CadenaSQL = "SELECT n.idNodo, n.Codigo, n.LinkMaps, n.Descripcion Nodo, p.Descripcion Provincia, c.Descripcion Ciudad, 
 	n.FechaAlta, 6 Clientes, 		  n.FechaBaja 
-					FROM nodo n inner join ciudad c on n.IdCiudad = c.IdCiudad 
+					FROM nodos n inner join ciudad c on n.IdCiudad = c.IdCiudad 
 						inner join provincia p on c.idProvincia = p.idProvincia
 					WHERE 1 ";
 	if ($codigo != "" )
@@ -36,8 +36,8 @@
 		$CadenaSQL .= " and c.IdCiudad = ". $ciudad;
 	else if ($prov != "")
 		$CadenaSQL .= " and p.IdProvincia = ".$prov; 	
-
 	//Fetch 3 rows from actor table
+	
 	  $result = mysqli_query($conexion,$CadenaSQL);
 
 	//Initialize array variable
@@ -50,7 +50,7 @@
 
 	//Print array in JSON format
 	 $json = json_encode($dbdata);
-
+	
 	echo $json;
 	
 
