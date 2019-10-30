@@ -111,8 +111,6 @@
 						opt.innerHTML = "Seleccione"; 
 
 						selCiu.appendChild(opt);
-						console.log("dataaaaaaaaaaaaaaaaaaaaaaaaaa");
-						console.log(data);
 						var data1 = JSON.parse(data);
 						data1.forEach(row => {
 							opt = document.createElement("option");
@@ -166,7 +164,6 @@
 						drawthClientes=document.createElement("th");
 						drawthMaps=document.createElement("th");
 						drawthFechaAlta=document.createElement("th");
-						drawthFechaBaja=document.createElement("th");
 						drawthActions=document.createElement("th"); 
 						
 						drawthChk.appendChild(document.createTextNode('Sel'));
@@ -177,7 +174,6 @@
 						drawthClientes.appendChild(document.createTextNode('Cant. Clientes'));
 						drawthMaps.appendChild(document.createTextNode('Maps'));
 						drawthFechaAlta.appendChild(document.createTextNode('Fecha Alta'));
-						drawthFechaBaja.appendChild(document.createTextNode('Fecha Baja'));
 						drawthActions.appendChild(document.createTextNode('Acciones'));
 						
 																
@@ -189,7 +185,6 @@
 						drawtr.appendChild(drawthClientes);
 						drawtr.appendChild(drawthMaps);
 						drawtr.appendChild(drawthFechaAlta);		
-						drawtr.appendChild(drawthFechaBaja);
 						drawHead.appendChild(drawtr);
 						drawtr.appendChild(drawthActions);						
 																																  
@@ -204,7 +199,6 @@
 						drawthClientesFoot=document.createElement("th");
 						drawthMapFootFoot=document.createElement("th");
 						drawthFechaAltaFoot=document.createElement("th");
-						drawthFechaBajaFoot=document.createElement("th");
 						drawthActionsFoot=document.createElement("th");
 						
 						drawthChkFoot.appendChild(document.createTextNode('Sel'));
@@ -215,7 +209,6 @@
 						drawthClientesFoot.appendChild(document.createTextNode('Cant. Clientes'));
 						drawthMapFootFoot.appendChild(document.createTextNode('Maps'));
 						drawthFechaAltaFoot.appendChild(document.createTextNode('Fecha Alta'));
-						drawthFechaBajaFoot.appendChild(document.createTextNode('Fecha Baja'));
 						drawthActionsFoot.appendChild(document.createTextNode('Actions'));		
 						
 						drawtrFoot.appendChild(drawthChkFoot);		
@@ -226,7 +219,6 @@
 						drawtrFoot.appendChild(drawthClientesFoot);
 						drawtrFoot.appendChild(drawthMapFootFoot);
 						drawtrFoot.appendChild(drawthFechaAltaFoot);		
-						drawtrFoot.appendChild(drawthFechaBajaFoot);	
 						drawtrFoot.appendChild(drawthActionsFoot);
 						drawFoot.appendChild(drawtrFoot);
 																																  
@@ -246,7 +238,6 @@
 							colClientes = document.createElement("td");
 							colMaps = document.createElement("td");
 							colFechaAlta = document.createElement("td");
-							colFechaBaja = document.createElement("td");
 							colActions = document.createElement("td");
 							
 							var chk = document.createElement("input");
@@ -262,17 +253,19 @@
 							colCiudad.appendChild(document.createTextNode(row.Ciudad));
 							colClientes.appendChild(document.createTextNode(row.Clientes));
 							
-							var maps = document.createElement("a");
-							maps.setAttribute('href', row.LinkMaps );
-							maps.setAttribute('target','_blank');
-							//maps.setAttribute('class', "btn-sm btn-secondary mr-1 ");
-							var btnmaps = document.createElement("img");
-							btnmaps.setAttribute('src', "img/gmaps.png");
-							maps.appendChild(btnmaps);
-							
-							colMaps.appendChild(maps);
+							if(row.LinkMaps != "")
+							{
+								var maps = document.createElement("a");
+								maps.setAttribute('href', row.LinkMaps );
+								maps.setAttribute('target','_blank');
+								//maps.setAttribute('class', "btn-sm btn-secondary mr-1 ");
+								var btnmaps = document.createElement("img");
+								btnmaps.setAttribute('src', "img/gmaps.png");
+								maps.appendChild(btnmaps);
+								
+								colMaps.appendChild(maps);
+							}
 							colFechaAlta.appendChild(document.createTextNode(row.FechaAlta));
-							colFechaBaja.appendChild(document.createTextNode(row.FechaBaja));
 							
 							var link = document.createElement("a");
 							link.setAttribute('href', "TipoMovimientoEditar.php?m=R&id=" + row.IdTipoMovimiento );
@@ -308,7 +301,6 @@
 							rowTable.appendChild(colClientes);
 							rowTable.appendChild(colMaps);
 							rowTable.appendChild(colFechaAlta);
-							rowTable.appendChild(colFechaBaja);
 							rowTable.appendChild(colActions);	
 							
 							tabBody.appendChild(rowTable);

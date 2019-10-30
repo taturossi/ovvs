@@ -31,6 +31,9 @@
   <script>
 	function Nuevo()
 	{
+
+		
+
 		document.getElementById("divError").style.display = "none";
 		document.getElementById("divResult").style.display = "none";
 		
@@ -39,44 +42,153 @@
 		
 		var codigo = document.getElementById("txtCodigo").value;
 		var descrip = document.getElementById("txtDescrip").value;
-		var tipo = document.getElementById("selTipo").value;
+		var maps = document.getElementById("txtLinkMaps").value;
+		var prov = document.getElementById("selProvincia").value;
+		var ciudad = document.getElementById("selCiudad").value;
+		var otros = document.getElementById("txtOtros").value;
+		var ups = document.getElementById("txtUPS").value;
+		var bat = document.getElementById("txtBaterias").value;
+		var server = document.getElementById("txtServidor").value;
+		var panel = document.getElementById("txtPanel").value;
+		var regulador = document.getElementById("txtRegulador").value;
+		var bocas = document.getElementById("txtBocas").value;
 		
-		urltemp = 'classes/TipoMovimiento/nuevoTipoMovimiento.php?c='+codigo+'&d='+descrip+'&t='+tipo;
+		urltemp = 'classes/nodo/nuevoNodo.php?codigo='+codigo+'&descrip='+descrip+'&maps='+maps+'&ciudad='+ciudad+'&otros='+otros+'&ups='+ups+'&bat='+bat+'&server='+server+'&panel='+panel+'&regulador='+regulador+'&bocas='+bocas;
+		
+		var resultnodo = 0;	
+		var resultrouter = 0;	
+		var resultswitch = 0;	
+		var resultsantena = 0;	
+		var idpadre = 0;
 		
 		$.ajax({
 			type: "GET",
+			async: false,
 			url: urltemp,
 			success: function(data){
 				
-				console.log(data);
-				if (data == 1)
+				if (data >0)
 				{
-					document.getElementById("divMensaje").innerHTML = "<p>El tipo de movimiento "+descrip+" fue creado correctamente<p>";
-					document.getElementById("divResult").style.display = "block";
-					document.getElementById("txtCodigo").value = "";
-					document.getElementById("txtDescrip").value ="";
-					document.getElementById("selTipo").value = 0;
+					resultnodo = data;
 				}
 			}
 		});
+
+		//Proceso list box de Routers
+		var result = [];
+		var options =document.getElementById("lstBoxRA").options;
+		var opt;
+		for (var i=0, ilen=options.length;i<ilen; i++) {
+		
+			opt = options[i];
+
+			$.ajax({
+			type: "GET",
+			async: false,
+			url: 'classes/nodo/asociarequipo.php?idEq='+opt.value+'&idNodo='+resultnodo+'&idEqPadre=0',
+			success: function(data){
+					if (data >0)
+					{
+						resultrouter = data;
+						idpadre = opt.value;
+					}
+				}
+			});
+			
+		}
+		
+		//Proceso listbox de switch
+		options =document.getElementById("lstBoxSWA").options;
+		if(options.length > 0)
+		{
+			opt = options[0];
+
+			$.ajax({
+			type: "GET",
+			async: false,
+			url: 'classes/nodo/asociarequipo.php?idEq='+opt.value+'&idNodo='+resultnodo+'&idEqPadre='+idpadre,
+			success: function(data){
+					if (data >0)
+					{
+						resultswitch = data;
+						idpadre = opt.value;
+					}
+				}
+			});
+			
+		}
+		else
+			resultswitch = 1;
+
+		//Proceso listbox de antenas
+		options =document.getElementById("lstBoxAA").options;
+		if(options.length > 0)
+		{
+			for (var i=0, ilen=options.length;i<ilen; i++) {
+				opt = options[i];
+
+				$.ajax({
+				type: "GET",
+				async: false,
+				url: 'classes/nodo/asociarequipo.php?idEq='+opt.value+'&idNodo='+resultnodo+'&idEqPadre='+idpadre,
+				success: function(data){
+						if (data >0)
+						{
+							resultsantena = data;
+						}
+					}
+				});
+			}
+		}
+
+		//Validacion final
+		if(resultnodo != 0 && resultrouter != 0 && resultswitch != 0 && resultsantena != 0)
+		{
+			document.getElementById("txtCodigo").value = "";
+			document.getElementById("txtDescrip").value = "";
+			document.getElementById("txtLinkMaps").value = "";
+			document.getElementById("selProvincia").value = 0;
+			document.getElementById("selCiudad").value = 0;
+			document.getElementById("txtOtros").value = "";
+			document.getElementById("txtUPS").value = "";
+			document.getElementById("txtBaterias").value = "";
+			document.getElementById("txtServidor").value = "";
+			document.getElementById("txtPanel").value = "";
+			document.getElementById("txtRegulador").value = "";
+			document.getElementById("txtBocas").value = "";	
+			LimpiarListas();
+			CargarEquipos();
+			document.getElementById("divMensaje").innerHTML = "<p>El nodo "+descrip+" fue creado correctamente<p>";
+			document.getElementById("divResult").style.display = "block";
+			
+		}
 		
 	}
 	
 	function Validar()
 	{
+
+		var codigo = document.getElementById("txtCodigo").value;
+		var descrip = document.getElementById("txtDescrip").value;
+		var prov = document.getElementById("selProvincia").value;
+		var ciudad = document.getElementById("selCiudad").value;
+		var routers = document.getElementById("lstBoxRA").options.length;
+		var sw = document.getElementById("lstBoxSWA").options.length;
+		var antenas = document.getElementById("lstBoxAA").options.length;
+
 		var mensaje = "";
-		if(document.getElementById("txtCodigo").value == "")
+		if(codigo == "")
 		{
-			mensaje = mensaje + "<p>Por favor ingrese el codigo del tipo de movimiento.<p>"
+			mensaje = mensaje + "<p>Por favor ingrese el codigo del nodo.<p>"
 		}
 		else
 		{
 			$.ajax({
 			type: "GET",
-			url: 'classes/TipoMovimiento/getTipoMovimientoPorCodigo.php?c='+document.getElementById("txtCodigo").value,
+			url: 'classes/Nodo/getNodoPorCodigo.php?c='+codigo,
 			success: function(data){
-				
-				mensaje =  mensaje + "<p>El código ingresado ya existe para un tipo de movimiento.<p>"
+				if(data != "")
+					mensaje =  mensaje + "<p>El código ingresado ya existe para un nodo existente.<p>"
 			},
 			async: false
 			});
@@ -88,10 +200,30 @@
 			mensaje = mensaje + "<p>Por favor ingrese la descripción del tipo de movimiento.<p>"
 		}
 		
-		if(document.getElementById("selTipo").value == 0)
+		if(prov == 0)
 		{
-			mensaje = mensaje + "<p>Por favor seleccione el tipo de imputación.<p>"
+			mensaje = mensaje + "<p>Por favor seleccione la  provincia donde se encuentra el nodo.<p>"
 		}
+		if(ciudad == 0)
+		{
+			mensaje = mensaje + "<p>Por favor seleccione la  ciudad donde se encuentra el nodo.<p>"
+		}
+
+		if(sw > 0 || antenas > 0) 
+		{
+			if(routers == 0)
+				mensaje = mensaje + "<p>Por favor debe asignar un router al nodo para la conexion de los demas equipos.<p>";
+		}
+
+		if(routers > 1)
+		{
+			mensaje = mensaje + "<p>Por favor debe asignar solo un router al nodo para la conexion de los demas equipos.<p>";
+		}
+
+		if(sw > 1)
+			mensaje = mensaje + "<p>Por favor debe asignar solo un switch al nodo para la conexion de los demas equipos.<p>";
+
+
 		if(mensaje != "")
 		{
 			console.log(mensaje);
@@ -110,8 +242,8 @@
 	}
 	$(document).ready(function() {
 			CargarProvincias();
-			CargarRouters();
-		//	CargarGrilla("","",0, 0);
+			CargarEquipos();
+			CargarGrillaAntenas();
 		});
 		
 	function CargarProvincias()
@@ -167,28 +299,165 @@
 			});
 		}
 	}
-	function CargarRouters()
+	function LimpiarListas()
+	{
+		var sel = document.getElementById("lstBoxRD");
+		var i;
+		for(i = sel.options.length - 1 ; i >= 0 ; i--)
+			sel.remove(i);
+			
+		sel = document.getElementById("lstBoxRA");
+		for(i = sel.options.length - 1 ; i >= 0 ; i--)
+			sel.remove(i);
+		
+		sel = document.getElementById("lstBoxSWA");
+		for(i = sel.options.length - 1 ; i >= 0 ; i--)
+			sel.remove(i);
+			
+		sel = document.getElementById("lstBoxSWD");
+		for(i = sel.options.length - 1 ; i >= 0 ; i--)
+			sel.remove(i);
+		
+		sel = document.getElementById("lstBoxAA");
+		for(i = sel.options.length - 1 ; i >= 0 ; i--)
+			sel.remove(i);
+		
+		sel = document.getElementById("lstBoxAD");
+		for(i = sel.options.length - 1 ; i >= 0 ; i--)
+			sel.remove(i);
+		
+	}
+	function CargarEquipos()
 	{
 		$.ajax({
 					type: "GET",
-					url: "classes/Nodo/getRouters.php",
+					url: "classes/Equipo/getEquiposSinAsignar.php",
 					async: true,
 					success: function(data){
 						
-						var selProv = document.getElementById("selProvincia");
-
+						var selRout = document.getElementById("lstBoxRD");
+						var selSwitch = document.getElementById("lstBoxSWD");
+						var selAntena = document.getElementById("lstBoxAD");
 					
-						
+						//1-R, 2-S, 4-a
 						var data1 = JSON.parse(data);
 						data1.forEach(row => {
 							var opt = document.createElement("option");
-							opt.value= row.IdProvincia;
-							opt.innerHTML = row.Descripcion; 
-
-							selProv.appendChild(opt);
+							opt.value= row.idEquipo;
+							opt.innerHTML = row.codigo +"-"+ row.Descripcion; 
+							if(row.idTipoEquipo == 1)
+								selRout.appendChild(opt);
+							else if(row.idTipoEquipo == 2)
+								selSwitch.appendChild(opt);
+							else if(row.idTipoEquipo == 4)
+								selAntena.appendChild(opt); 
 						});
 					}
 		});
+	}
+	function CargarGrillaAntenas()
+	{
+		tabContainer=document.getElementById("tableContainer");
+
+		drawTable=document.createElement("table");
+		drawTable.setAttribute('class', "table table-bordered dataTable");
+		drawTable.setAttribute('id', "tblAntenas");
+		drawTable.setAttribute('width', "100%");
+		drawTable.setAttribute('cellspacing', "0");
+		drawHead=document.createElement("thead");
+		drawtr=document.createElement("tr");
+		drawthCodigo=document.createElement("th");
+		drawthMod=document.createElement("th");
+		drawthFrecs=document.createElement("th");
+		drawthAB=document.createElement("th");
+		drawthFrec=document.createElement("th");
+		drawthCodigo.appendChild(document.createTextNode('Cod-Desc'));
+		drawthMod.appendChild(document.createTextNode('Modalidad'));
+		drawthFrecs.appendChild(document.createTextNode('Frecuencias'));
+		drawthAB.appendChild(document.createTextNode('AB'));
+		drawthFrec.appendChild(document.createTextNode('Frecuencia'));
+		
+																													
+		drawtr.appendChild(drawthCodigo);		
+		drawtr.appendChild(drawthMod);	
+		drawtr.appendChild(drawthFrecs);
+		drawtr.appendChild(drawthAB);
+		drawtr.appendChild(drawthFrec);						
+		drawHead.appendChild(drawtr);																											
+																													
+		drawFoot=document.createElement("tfoot");
+		drawtrFoot=document.createElement("tr");
+		drawthCodigoFoot=document.createElement("th");
+		drawthModFoot=document.createElement("th");
+		drawthFrecsFoot=document.createElement("th");
+		drawthABFoot=document.createElement("th");
+		drawthFrecFoot=document.createElement("th");
+
+		drawthCodigoFoot.appendChild(document.createTextNode('Cod-Desc'));
+		drawthModFoot.appendChild(document.createTextNode('Modalidad'));
+		drawthFrecsFoot.appendChild(document.createTextNode('Frecuencias'));
+		drawthABFoot.appendChild(document.createTextNode('AB'));
+		drawthFrecFoot.appendChild(document.createTextNode('Frecuencia'));
+		
+		drawtrFoot.appendChild(drawthCodigoFoot);		
+		drawtrFoot.appendChild(drawthModFoot);	
+		drawtrFoot.appendChild(drawthFrecsFoot);
+		drawtrFoot.appendChild(drawthABFoot);		
+		drawtrFoot.appendChild(drawthFrecFoot);	
+		drawFoot.appendChild(drawtrFoot);
+																													
+		tabBody=document.createElement("tbody");	
+			
+		rowTable=document.createElement("tr");
+
+		colCodigo = document.createElement("td");
+		colMod = document.createElement("td");
+		colFrecs = document.createElement("td");
+		colAB = document.createElement("td");
+		colFrec = document.createElement("td");
+			
+		
+		colCodigo.appendChild(document.createTextNode("aa"));
+		colMod.appendChild(document.createTextNode("aa"));
+		colFrecs.appendChild(document.createTextNode("aa"));
+		colAB.appendChild(document.createTextNode("aa"));
+		colFrec.appendChild(document.createTextNode("aa"));
+		/*
+		var link = document.createElement("a");
+		link.setAttribute('href', "TipoMovimientoEditar.php?m=R&id=" + row.IdTipoMovimiento );
+		link.setAttribute('class', "btn-sm btn-secondary mr-1");
+		var btnsettings = document.createElement("i");
+		btnsettings.setAttribute('class', "fas fa-cog text-white-50");
+		link.appendChild(btnsettings);
+			
+		var editlink = document.createElement("a");
+		editlink.setAttribute('href', "TipoMovimientoEditar.php?m=E&id=" + row.IdTipoMovimiento );
+		editlink.setAttribute('class', "btn-sm btn-primary mr-1");
+		var btnedit = document.createElement("i");
+		btnedit.setAttribute('class', "fa fa-magic text-white-50");
+		editlink.appendChild(btnedit);
+		
+		var remove = document.createElement("a");
+		remove.setAttribute('href', "#");
+		remove.setAttribute('class', "btn-sm btn-danger ");
+		remove.setAttribute('onclick', "javascript:Desactivar("+ row.IdTipoMovimiento+",'"+ row.Codigo +"');");
+		var btnremove = document.createElement("i");
+		btnremove.setAttribute('class', "fas fa-trash text-white-50");
+		remove.appendChild(btnremove);
+		*/
+		rowTable.appendChild(colCodigo);
+		rowTable.appendChild(colMod);
+		rowTable.appendChild(colFrecs);
+		rowTable.appendChild(colAB);
+		rowTable.appendChild(colFrec);
+		
+		tabBody.appendChild(rowTable);
+		
+		drawTable.appendChild(drawHead);
+		drawTable.appendChild(drawFoot);
+		drawTable.appendChild(tabBody);
+		tabContainer.appendChild(drawTable);
+		$('#tblAntenas').DataTable();
 	}
   </script>
 		
@@ -233,11 +502,11 @@
 					<div class="row mb-4">
 						
 						<div class="col-4">
-							<label for="Name">Código</label>
+							<label for="Name">Código *</label>
                             <input class="form-control" id="txtCodigo" name="txtCodigo" value="">
 						</div>
 						<div class="col-4">
-							<label for="Username">Descripción</label>
+							<label for="Username">Descripción *</label>
                             <input class="form-control" id="txtDescrip" name="txtDescrip" value="">
 						</div>
 						<div class="col-4">
@@ -248,13 +517,13 @@
 					<div class="row mb-4">
 						
 						<div class="col-4">
-							<label for="Name">Provincia</label>
+							<label for="Name">Provincia *</label>
                             <select class="form-control select2-hidden-accessible" data-val="true"  id="selProvincia" name="selProvincia" onchange="javascript:CargarCiudades();"  tabindex="-1" aria-hidden="true">
 								<option value="0">Seleccione</option>
 							</select>
 						</div>
 						<div class="col-4">
-							<label for="Username">Ciudad</label>
+							<label for="Username">Ciudad *</label>
                             <select class="form-control select2-hidden-accessible" data-val="true"  id="selCiudad" name="selCiudad"  tabindex="-1" aria-hidden="true">
 							</select>
 						</div>
@@ -304,12 +573,7 @@
 							<label for="Currency">Routers Disponibles</label>
 							<div class="subject-info-box-1">
 							  <select multiple="multiple" id='lstBoxRD' class="form-control">
-								<option value="ajax">Ajax</option>
-								<option value="jquery">jQuery</option>
-								<option value="javascript">JavaScript</option>
-								<option value="mootool">MooTools</option>
-								<option value="prototype">Prototype</option>
-								<option value="dojo">Dojo</option>
+								
 							  </select>
 							</div>
 						</div>
@@ -327,12 +591,7 @@
 							<label for="Currency">Routers Asignados</label>
 							<div class="subject-info-box-2">
 							  <select multiple="multiple" id='lstBoxRA' class="form-control">
-								<option value="asp">ASP.NET</option>
-								<option value="c#">C#</option>
-								<option value="vb">VB.NET</option>
-								<option value="java">Java</option>
-								<option value="php">PHP</option>
-								<option value="python">Python</option>
+								
 							  </select>
 							</div>
 						</div>
@@ -345,12 +604,7 @@
 							<label for="Currency">Switchs Disponibles</label>
 							<div class="subject-info-box-1">
 							  <select multiple="multiple" id='lstBoxSWD' class="form-control">
-								<option value="ajax">Ajax</option>
-								<option value="jquery">jQuery</option>
-								<option value="javascript">JavaScript</option>
-								<option value="mootool">MooTools</option>
-								<option value="prototype">Prototype</option>
-								<option value="dojo">Dojo</option>
+								
 							  </select>
 							</div>
 						</div>
@@ -368,12 +622,7 @@
 							<label for="Currency">Switchs Asignados</label>
 							<div class="subject-info-box-2">
 							  <select multiple="multiple" id='lstBoxSWA' class="form-control">
-								<option value="asp">ASP.NET</option>
-								<option value="c#">C#</option>
-								<option value="vb">VB.NET</option>
-								<option value="java">Java</option>
-								<option value="php">PHP</option>
-								<option value="python">Python</option>
+								
 							  </select>
 							</div>
 						</div>
@@ -386,12 +635,7 @@
 							<label for="Currency">Antenas Disponibles</label>
 							<div class="subject-info-box-1">
 							  <select multiple="multiple" id='lstBoxAD' class="form-control">
-								<option value="ajax">Ajax</option>
-								<option value="jquery">jQuery</option>
-								<option value="javascript">JavaScript</option>
-								<option value="mootool">MooTools</option>
-								<option value="prototype">Prototype</option>
-								<option value="dojo">Dojo</option>
+								
 							  </select>
 							</div>
 						</div>
@@ -405,17 +649,15 @@
 							  <input type="button" id="btnAllLeftA" value="<<" class="btn btn-primary btn-circle btn-sm" />
 							</div>
 						</div>
-						<div class="col-5">
+						<div class="col-6">
 							<label for="Currency">Antenas Asignados</label>
 							<div class="subject-info-box-2">
 							  <select multiple="multiple" id='lstBoxAA' class="form-control">
-								<option value="asp">ASP.NET</option>
-								<option value="c#">C#</option>
-								<option value="vb">VB.NET</option>
-								<option value="java">Java</option>
-								<option value="php">PHP</option>
-								<option value="python">Python</option>
+								
 							  </select>
+							</div>
+							<div class="table-responsive" id="tableContainer">
+               
 							</div>
 						</div>
 

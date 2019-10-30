@@ -175,6 +175,7 @@
 		function CargarModelos()
 		{
 			var marca = document.getElementById("selMarca").value;
+			
 			if(marca != 0)
 			{
 				$.ajax({
@@ -184,6 +185,11 @@
 					success: function(data){
 						
 						var sel = document.getElementById("selModelo");
+						var i;
+						for(i = sel.options.length - 1 ; i >= 0 ; i--)
+						{
+							sel.remove(i);
+						}
 						
 						var opt = document.createElement("option");
 						opt.value= 0;

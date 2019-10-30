@@ -32,13 +32,15 @@
 	
 	$conexion = cnn();
 	
-	$CadenaSQL = "SELECT e.idEquipo, e.codigo, e.Descripcion, m.Descripcion marca, mo.descripcion Modelo, te.Descripcion TipoEquipo , ti.Descripcion tipoinstalacion, \"Torre\", e.FechaAlta, e.FechaBaja
-					FROM equipo e inner JOIN
-					marcaequipo m on e.IdMarcaEquipo = m.idMarcaEquipo inner JOIN
-					modeloequipo mo on e.IdModeloEquipo = mo.idmodeloequipo INNER JOIN
-					tipoequipo te on e.IdTipoHardware = te.idTipoEquipo left outer JOIN
-					tipoinstalacion ti on  e.IdTipoInstalacion = ti.idTipoInstalacion
-					WHERE fechabaja is null ";
+	$CadenaSQL = "SELECT e.idEquipo, e.codigo, e.Descripcion, m.Descripcion marca, mo.descripcion Modelo, 
+				te.Descripcion TipoEquipo , ti.Descripcion tipoinstalacion, n.Descripcion Torre, e.FechaAlta, e.FechaBaja 
+				FROM equipo e inner JOIN marcaequipo m on e.IdMarcaEquipo = m.idMarcaEquipo inner JOIN 
+				modeloequipo mo on e.IdModeloEquipo = mo.idmodeloequipo INNER JOIN 
+				tipoequipo te on e.IdTipoHardware = te.idTipoEquipo left outer JOIN 
+				tipoinstalacion ti on e.IdTipoInstalacion = ti.idTipoInstalacion left outer JOIN 
+				equiponodo en on e.idEquipo = en.idEquipo 
+				left outer join nodos n on n.IdNodo = en.idNodo 
+				WHERE e.FechaBaja is null and en.FechaBaja is null";
 	
 	if ($codigo != "" )
 		$CadenaSQL .= " and e.codigo like '%".$codigo."%'"; 	
