@@ -681,7 +681,7 @@
 		 *  @example
 		 *    $(document).ready(function() {
 		 *      var oTable = $('#example').dataTable();
-		 *      oTable.fnPageChange( 'next' );
+		 *      oTable.fnPageChange( 'Ultimo' );
 		 *    } );
 		 */
 		this.fnPageChange = function ( mAction, bRedraw )
@@ -1747,7 +1747,7 @@
 			// Backwards compatibility - if there is no sEmptyTable given, then use the same as
 			// sZeroRecords - assuming that is given.
 			if ( ! lang.sEmptyTable && zeroRecords &&
-				defaults.sEmptyTable === "No data available in table" )
+				defaults.sEmptyTable === "No existe información para mostrar." )
 			{
 				_fnMap( lang, lang, 'sZeroRecords', 'sEmptyTable' );
 			}
@@ -4950,11 +4950,11 @@
 				start = 0;
 			}
 		}
-		else if ( action == "first" )
+		else if ( action == "Primero" )
 		{
 			start = 0;
 		}
-		else if ( action == "previous" )
+		else if ( action == "Anterior" )
 		{
 			start = len >= 0 ?
 				start - len :
@@ -4965,14 +4965,14 @@
 			  start = 0;
 			}
 		}
-		else if ( action == "next" )
+		else if ( action == "Siguiente" )
 		{
 			if ( start + len < records )
 			{
 				start += len;
 			}
 		}
-		else if ( action == "last" )
+		else if ( action == "Ultimo" )
 		{
 			start = Math.floor( (records-1) / len) * len;
 		}
@@ -11429,12 +11429,12 @@
 			 *    $(document).ready( function() {
 			 *      $('#example').dataTable( {
 			 *        "language": {
-			 *          "emptyTable": "No data available in table"
+			 *          "emptyTable": "No existe información para mostrar."
 			 *        }
 			 *      } );
 			 *    } );
 			 */
-			"sEmptyTable": "No data available in table",
+			"sEmptyTable": "No existe información para mostrar.",
 	
 	
 			/**

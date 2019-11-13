@@ -24,6 +24,7 @@
 	$CadenaSQL = "INSERT INTO equiponodo(idEquipo, IdEquipoPadre, idNodo, FechaAsignacion) 
 	VALUES (".$idEq .",".$idEqPadre.",".$idNodo.",'".$d->format('y-m-d')."')";		
 	$result = mysqli_query($conexion,$CadenaSQL);
+	$result = mysqli_insert_id($conexion);
 	ECHO $result;
 	
 

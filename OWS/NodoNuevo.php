@@ -31,9 +31,6 @@
   <script>
 	function Nuevo()
 	{
-
-		
-
 		document.getElementById("divError").style.display = "none";
 		document.getElementById("divResult").style.display = "none";
 		
@@ -120,20 +117,47 @@
 		else
 			resultswitch = 1;
 
-		//Proceso listbox de antenas
-		options =document.getElementById("lstBoxAA").options;
+		//Proceso grilla de antenas
+		options = document.getElementById("tbAntenas").rows;
 		if(options.length > 0)
 		{
 			for (var i=0, ilen=options.length;i<ilen; i++) {
 				opt = options[i];
-
+				//Obtengo id de antena
+				var idant = opt.childNodes[0].childNodes[0].value;
+				//Obtengo id de modalidad
+				var mod = opt.childNodes[1].childNodes[0].value;
+				//Obtengo el rango de frecuencias
+				var frecs = opt.childNodes[2].childNodes[0].value;
+				//Obtengo el ancho de banda
+				var ab = opt.childNodes[3].childNodes[0].value;
+				//Obtengo la  frecuencia configurada
+				var frec = opt.childNodes[4].childNodes[0].value;
+			
+				
+				//Asocio la antena al nodo
 				$.ajax({
 				type: "GET",
 				async: false,
-				url: 'classes/nodo/asociarequipo.php?idEq='+opt.value+'&idNodo='+resultnodo+'&idEqPadre='+idpadre,
+				url: 'classes/nodo/asociarequipo.php?idEq='+idant+'&idNodo='+resultnodo+'&idEqPadre='+idpadre,
 				success: function(data){
 						if (data >0)
 						{
+							ideqant = data;
+						}
+					}
+				});
+
+				//asocio las caracteristicas tecnicas de la antena a la antena
+				$.ajax({
+				type: "GET",
+				async: false,
+				url: 'classes/nodo/asociardatostecnicosequipo.php?idanteq='+ideqant+'&mod='+mod+'&frecs='+frecs+'&ab='+ab+'&frec='+frec,
+				success: function(data){
+						console.log(data);
+						if (data >0)
+						{
+							ideqant = data;
 							resultsantena = data;
 						}
 					}
@@ -142,6 +166,7 @@
 		}
 
 		//Validacion final
+		console.log(resultnodo +" -- "+resultrouter +" -- "+resultswitch +" -- "+resultsantena);
 		if(resultnodo != 0 && resultrouter != 0 && resultswitch != 0 && resultsantena != 0)
 		{
 			document.getElementById("txtCodigo").value = "";
@@ -174,7 +199,7 @@
 		var ciudad = document.getElementById("selCiudad").value;
 		var routers = document.getElementById("lstBoxRA").options.length;
 		var sw = document.getElementById("lstBoxSWA").options.length;
-		var antenas = document.getElementById("lstBoxAA").options.length;
+		var antenas = document.getElementById("tbAntenas").rows.length;
 
 		var mensaje = "";
 		if(codigo == "")
@@ -318,9 +343,14 @@
 		for(i = sel.options.length - 1 ; i >= 0 ; i--)
 			sel.remove(i);
 		
-		sel = document.getElementById("lstBoxAA");
-		for(i = sel.options.length - 1 ; i >= 0 ; i--)
-			sel.remove(i);
+		var selectedOpts = document.getElementById("tbAntenas").rows;
+        
+        if (selectedOpts.length > 0) {
+            for(var i=0; i<selectedOpts.length; i++)
+            {
+                remTRaddOPT(selectedOpts[i]);
+            }
+        }
 		
 		sel = document.getElementById("lstBoxAD");
 		for(i = sel.options.length - 1 ; i >= 0 ; i--)
@@ -407,51 +437,9 @@
 		drawFoot.appendChild(drawtrFoot);
 																													
 		tabBody=document.createElement("tbody");	
-			
-		rowTable=document.createElement("tr");
-
-		colCodigo = document.createElement("td");
-		colMod = document.createElement("td");
-		colFrecs = document.createElement("td");
-		colAB = document.createElement("td");
-		colFrec = document.createElement("td");
+		tabBody.setAttribute("id", "tbAntenas");
 			
 		
-		colCodigo.appendChild(document.createTextNode("aa"));
-		colMod.appendChild(document.createTextNode("aa"));
-		colFrecs.appendChild(document.createTextNode("aa"));
-		colAB.appendChild(document.createTextNode("aa"));
-		colFrec.appendChild(document.createTextNode("aa"));
-		/*
-		var link = document.createElement("a");
-		link.setAttribute('href', "TipoMovimientoEditar.php?m=R&id=" + row.IdTipoMovimiento );
-		link.setAttribute('class', "btn-sm btn-secondary mr-1");
-		var btnsettings = document.createElement("i");
-		btnsettings.setAttribute('class', "fas fa-cog text-white-50");
-		link.appendChild(btnsettings);
-			
-		var editlink = document.createElement("a");
-		editlink.setAttribute('href', "TipoMovimientoEditar.php?m=E&id=" + row.IdTipoMovimiento );
-		editlink.setAttribute('class', "btn-sm btn-primary mr-1");
-		var btnedit = document.createElement("i");
-		btnedit.setAttribute('class', "fa fa-magic text-white-50");
-		editlink.appendChild(btnedit);
-		
-		var remove = document.createElement("a");
-		remove.setAttribute('href', "#");
-		remove.setAttribute('class', "btn-sm btn-danger ");
-		remove.setAttribute('onclick', "javascript:Desactivar("+ row.IdTipoMovimiento+",'"+ row.Codigo +"');");
-		var btnremove = document.createElement("i");
-		btnremove.setAttribute('class', "fas fa-trash text-white-50");
-		remove.appendChild(btnremove);
-		*/
-		rowTable.appendChild(colCodigo);
-		rowTable.appendChild(colMod);
-		rowTable.appendChild(colFrecs);
-		rowTable.appendChild(colAB);
-		rowTable.appendChild(colFrec);
-		
-		tabBody.appendChild(rowTable);
 		
 		drawTable.appendChild(drawHead);
 		drawTable.appendChild(drawFoot);
@@ -569,7 +557,7 @@
 					<p>Seleccione el hardware asociado al nodo</p>
 					<!-- Routers -->
 					<div class="row mb-4" style="border: 1px solid; padding-bottom: 5px;">
-						<div class="col-5">
+						<div class="col-3">
 							<label for="Currency">Routers Disponibles</label>
 							<div class="subject-info-box-1">
 							  <select multiple="multiple" id='lstBoxRD' class="form-control">
@@ -587,7 +575,7 @@
 							  <input type="button" id="btnAllLeft" value="<<" class="btn btn-primary btn-circle btn-sm" />
 							</div>
 						</div>
-						<div class="col-5">
+						<div class="col-3">
 							<label for="Currency">Routers Asignados</label>
 							<div class="subject-info-box-2">
 							  <select multiple="multiple" id='lstBoxRA' class="form-control">
@@ -600,7 +588,7 @@
 					</div>
 					<!-- Switch -->
 					<div class="row mb-4" style="border: 1px solid; padding-bottom: 5px;">
-						<div class="col-5">
+						<div class="col-3">
 							<label for="Currency">Switchs Disponibles</label>
 							<div class="subject-info-box-1">
 							  <select multiple="multiple" id='lstBoxSWD' class="form-control">
@@ -618,7 +606,7 @@
 							  <input type="button" id="btnAllLeftSW" value="<<" class="btn btn-primary btn-circle btn-sm" />
 							</div>
 						</div>
-						<div class="col-5">
+						<div class="col-3">
 							<label for="Currency">Switchs Asignados</label>
 							<div class="subject-info-box-2">
 							  <select multiple="multiple" id='lstBoxSWA' class="form-control">
@@ -631,7 +619,7 @@
 					</div>
 					<!-- Antenas -->
 					<div class="row mb-4" style="border: 1px solid; padding-bottom: 5px;">
-						<div class="col-5">
+						<div class="col-3">
 							<label for="Currency">Antenas Disponibles</label>
 							<div class="subject-info-box-1">
 							  <select multiple="multiple" id='lstBoxAD' class="form-control">
@@ -649,15 +637,9 @@
 							  <input type="button" id="btnAllLeftA" value="<<" class="btn btn-primary btn-circle btn-sm" />
 							</div>
 						</div>
-						<div class="col-6">
-							<label for="Currency">Antenas Asignados</label>
-							<div class="subject-info-box-2">
-							  <select multiple="multiple" id='lstBoxAA' class="form-control">
-								
-							  </select>
-							</div>
+						<div class="col-8">
 							<div class="table-responsive" id="tableContainer">
-               
+				
 							</div>
 						</div>
 
@@ -719,6 +701,9 @@
   <!-- Bootstrap core JavaScript-->
   <script src="vendor/jquery/jquery.min.js"></script>
   <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <!-- Page level plugins -->
+  <script src="vendor/datatables/jquery.dataTables.min.js"></script>
+  <script src="vendor/datatables/dataTables.bootstrap4.min.js"></script>
 
   <!-- Core plugin JavaScript-->
   <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
@@ -727,11 +712,10 @@
   <script src="js/sb-admin-2.min.js"></script>
   <script src="js/lista.js"></script>
   <script src="js/lista2.js"></script>
-  <script src="js/lista3.js"></script>
+  <!--script src="js/lista3.js"></script-->
+  <script src="js/listtogrid.js"></script>
 
-  <!-- Page level plugins -->
-  <script src="vendor/datatables/jquery.dataTables.min.js"></script>
-  <script src="vendor/datatables/dataTables.bootstrap4.min.js"></script>
+  
 
   <!-- Page level custom scripts -->
   <script src="js/demo/datatables-demo.js"></script>
